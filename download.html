@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download AI Meeting Notes Project</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+        }
+        .download-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .download-btn:hover {
+            background-color: #1d4ed8;
+        }
+        .instructions {
+            margin-top: 30px;
+            background-color: #e6f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Meeting Notes Project</h1>
+    
+    <div class="download-container">
+        <h2>Download Your Project Files</h2>
+        <p>Click the button below to download the complete project as a ZIP file.</p>
+        <a href="project.zip" class="download-btn" download>Download Project ZIP</a>
+    </div>
+    
+    <div class="instructions">
+        <h3>Setup Instructions:</h3>
+        <ol>
+            <li>Extract the ZIP file to a directory on your computer</li>
+            <li>Open a terminal/command prompt in that directory</li>
+            <li>Run <code>npm install</code> to install all dependencies</li>
+            <li>Create a <code>.env</code> file with your OpenAI API key: <code>OPENAI_API_KEY=your_key_here</code></li>
+            <li>Run <code>npm run dev</code> to start the application</li>
+        </ol>
+    </div>
+</body>
+</html>
