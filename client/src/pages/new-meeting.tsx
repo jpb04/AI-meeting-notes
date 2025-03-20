@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -16,7 +16,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mic } from "lucide-react";
+import { useAudioRecorder } from "@/hooks/use-audio-recorder";
+import { Loader2, Mic, StopCircle, Pause, Play } from "lucide-react";
 
 const meetingFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -33,9 +34,26 @@ const meetingFormSchema = z.object({
 type MeetingFormValues = z.infer<typeof meetingFormSchema>;
 
 export default function NewMeeting() {
-  const [isRecording, setIsRecording] = useState(false);
+  const [transcriptions, setTranscriptions] = useState<{text: string; speaker: string; timestamp: string}[]>([]);
   const [_, navigate] = useLocation();
   const { toast } = useToast();
+  
+  const handleTranscriptionReceived = (transcription: {text: string; speaker: string; timestamp: string}) => {
+    setTranscriptions(prev => [...prev, transcription]);
+  };
+  
+  const {
+    isRecording,
+    isPaused,
+    formattedTime,
+    startRecording,
+    pauseRecording,
+    resumeRecording,
+    stopRecording,
+    isSocketConnected
+  } = useAudioRecorder({
+    onTranscriptionReceived: handleTranscriptionReceived
+  });
   
   const form = useForm<MeetingFormValues>({
     resolver: zodResolver(meetingFormSchema),
@@ -79,13 +97,13 @@ export default function NewMeeting() {
       const res = await apiRequest("POST", "/api/meetings/record", {});
       return res.json();
     },
-    onSuccess: (data) => {
-      setIsRecording(true);
+    onSuccess: () => {
+      // Start actual microphone recording after API confirms
+      startRecording();
       toast({
         title: "Recording Started",
         description: "AI is now transcribing your meeting in real-time.",
       });
-      // In a real app, we would navigate to a live transcription page
     },
     onError: (error: Error) => {
       toast({
@@ -101,7 +119,34 @@ export default function NewMeeting() {
   };
   
   const handleStartRecording = () => {
-    startRecordingMutation.mutate();
+    // Make sure WebSocket is connected before starting
+    if (!isSocketConnected) {
+      toast({
+        variant: "destructive",
+        title: "Connection Error",
+        description: "Could not connect to the transcription service. Please refresh and try again.",
+      });
+      return;
+    }
+    
+    if (!isRecording) {
+      // Start recording through the API first
+      startRecordingMutation.mutate();
+    } else if (isPaused) {
+      resumeRecording();
+    } else {
+      pauseRecording();
+    }
+  };
+  
+  const handleStopRecording = () => {
+    stopRecording();
+    // In a real app, we would save the transcriptions to the database here
+    
+    toast({
+      title: "Recording Stopped",
+      description: "Your recording has been stopped. Transcription is being processed.",
+    });
   };
   
   return (
@@ -334,22 +379,67 @@ export default function NewMeeting() {
                     </p>
                   </div>
                   
-                  <Button 
-                    className={`w-full ${isRecording ? 'bg-red-500 hover:bg-red-600' : ''}`}
-                    disabled={startRecordingMutation.isPending || isRecording}
-                    onClick={handleStartRecording}
-                  >
-                    {startRecordingMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Starting...
-                      </>
-                    ) : isRecording ? (
-                      "Recording in Progress"
-                    ) : (
-                      "Start Recording Now"
+                  <div className="w-full space-y-3">
+                    {isRecording && (
+                      <div className="bg-gray-100 p-3 rounded-lg text-center mb-3">
+                        <p className="text-sm font-medium">Recording Time: {formattedTime}</p>
+                      </div>
                     )}
-                  </Button>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        className={`flex-1 ${isPaused ? 'bg-amber-500 hover:bg-amber-600' : isRecording ? 'bg-red-500 hover:bg-red-600' : ''}`}
+                        disabled={startRecordingMutation.isPending}
+                        onClick={handleStartRecording}
+                      >
+                        {startRecordingMutation.isPending ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Starting...
+                          </>
+                        ) : !isRecording ? (
+                          <>
+                            <Mic className="mr-2 h-4 w-4" />
+                            Start Recording
+                          </>
+                        ) : isPaused ? (
+                          <>
+                            <Play className="mr-2 h-4 w-4" />
+                            Resume
+                          </>
+                        ) : (
+                          <>
+                            <Pause className="mr-2 h-4 w-4" />
+                            Pause
+                          </>
+                        )}
+                      </Button>
+                      
+                      {isRecording && (
+                        <Button 
+                          variant="outline" 
+                          className="bg-white"
+                          onClick={handleStopRecording}
+                        >
+                          <StopCircle className="mr-2 h-4 w-4" />
+                          Stop
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {transcriptions.length > 0 && (
+                      <div className="mt-4 border rounded-lg p-3 max-h-[200px] overflow-y-auto">
+                        <h4 className="text-sm font-semibold mb-2">Real-time Transcription</h4>
+                        <div className="space-y-2">
+                          {transcriptions.map((transcription, index) => (
+                            <div key={index} className="text-sm">
+                              <span className="font-medium">{transcription.speaker}:</span> {transcription.text}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>

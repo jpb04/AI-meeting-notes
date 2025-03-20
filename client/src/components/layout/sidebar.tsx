@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import UserAvatar from "@/components/ui/user-avatar";
-import { ChatVoice, LayoutDashboard, Mic, History, Search, Settings, HelpCircle, LogOut } from "lucide-react";
+import { MessageSquareText, LayoutDashboard, Mic, History, Search, Settings, HelpCircle, LogOut } from "lucide-react";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -47,7 +47,7 @@ export default function Sidebar() {
       <div className="flex items-center px-6 py-4 h-16 border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-white">
-            <ChatVoice className="h-6 w-6" />
+            <MessageSquareText className="h-6 w-6" />
           </span>
           <span className="text-lg font-semibold text-primary-700">AI Meeting Notes</span>
         </div>

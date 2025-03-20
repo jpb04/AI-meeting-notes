@@ -10,8 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChatVoice } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { MessageSquareText, Loader2 } from "lucide-react";
 
 const loginSchema = insertUserSchema.extend({
   username: z.string().min(1, "Username is required"),
@@ -75,7 +74,7 @@ export default function AuthPage() {
           <CardHeader className="space-y-2 text-center">
             <div className="flex justify-center mb-2">
               <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary text-white">
-                <ChatVoice className="h-6 w-6" />
+                <MessageSquareText className="h-6 w-6" />
               </div>
             </div>
             <CardTitle className="text-2xl font-bold">AI Meeting Notes</CardTitle>
@@ -230,7 +229,7 @@ export default function AuthPage() {
           <div className="space-y-6">
             <div className="flex items-start">
               <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-md bg-white/10">
-                <ChatVoice className="h-6 w-6" />
+                <MessageSquareText className="h-6 w-6" />
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-semibold">Real-Time Transcription</h3>
