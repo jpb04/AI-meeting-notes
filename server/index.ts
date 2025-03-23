@@ -55,8 +55,8 @@ app.use((req, res, next) => {
   }
 
   // Serve the app on port 5050
-  const port = 5050;
-  server.listen(port, "127.0.0.1", () => {
-    log(`Server running at http://127.0.0.1:${port}`);
-  });
+  const port = process.env.PORT || 5050;
+server.listen(port, "0.0.0.0", () => {
+  log(`Server running at http://localhost:${port}`);
+});
 })();
